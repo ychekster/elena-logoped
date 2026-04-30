@@ -112,11 +112,32 @@ const TABLET_BREAKPOINT = 1024;
     const btnNext = document.getElementById('reviews-next');
     const currentPageElement = document.getElementById('reviews-current');
     const totalPagesElement = document.getElementById('reviews-total');
+    const modal = document.getElementById('review-modal');
+    const modalOverlay = document.getElementById('review-modal-overlay');
+    const modalClose = document.getElementById('review-modal-close');
+    const modalStars = document.getElementById('review-modal-stars');
+    const modalText = document.getElementById('review-modal-text');
+    const modalName = document.getElementById('review-modal-name');
+    const modalMeta = document.getElementById('review-modal-meta');
 
-    if (!track || !btnPrev || !btnNext || !currentPageElement || !totalPagesElement) {
+    if (
+        !track ||
+        !btnPrev ||
+        !btnNext ||
+        !currentPageElement ||
+        !totalPagesElement ||
+        !modal ||
+        !modalOverlay ||
+        !modalClose ||
+        !modalStars ||
+        !modalText ||
+        !modalName ||
+        !modalMeta
+    ) {
         return;
     }
 
+    const LONG_REVIEW_LENGTH = 220;
     const PER_PAGE = {
         desktop: 6,
         tablet: 4,
@@ -128,6 +149,51 @@ const TABLET_BREAKPOINT = 1024;
     let resizeTimerId;
 
     const getCards = () => Array.from(track.querySelectorAll('.reviews__card'));
+
+    const openReviewModal = (card) => {
+        const stars = card.querySelector('.reviews__card-stars');
+        const text = card.querySelector('.reviews__card-text');
+        const name = card.querySelector('.reviews__card-name');
+        const meta = card.querySelector('.reviews__card-meta');
+
+        if (!stars || !text || !name || !meta) {
+            return;
+        }
+
+        modalStars.innerHTML = stars.innerHTML;
+        modalText.textContent = text.textContent;
+        modalName.textContent = name.textContent;
+        modalMeta.textContent = meta.textContent;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeReviewModal = () => {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+    };
+
+    const initLongReviews = () => {
+        getCards().forEach((card) => {
+            const text = card.querySelector('.reviews__card-text');
+            const author = card.querySelector('.reviews__card-author');
+
+            if (!text || !author || text.textContent.trim().length <= LONG_REVIEW_LENGTH) {
+                return;
+            }
+
+            text.classList.add('reviews__card-text--clamped');
+            card.classList.add('reviews__card--long');
+
+            const button = document.createElement('button');
+            button.className = 'reviews__read-more';
+            button.type = 'button';
+            button.textContent = 'Читать далее...';
+            button.addEventListener('click', () => openReviewModal(card));
+
+            author.before(button);
+        });
+    };
 
     const getPerPage = () => {
         if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -209,6 +275,16 @@ const TABLET_BREAKPOINT = 1024;
         resizeTimerId = setTimeout(render, 150);
     });
 
+    modalClose.addEventListener('click', closeReviewModal);
+    modalOverlay.addEventListener('click', closeReviewModal);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) {
+            closeReviewModal();
+        }
+    });
+
+    initLongReviews();
     render();
 })();
 

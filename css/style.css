@@ -1315,6 +1315,38 @@ REVIEWS
     flex: 1;
 }
 
+.reviews__card-text--clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
+    overflow: hidden;
+    flex: 1;
+}
+
+.reviews__read-more {
+    align-self: flex-start;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-accent);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    margin-top: auto;
+    padding: 0.45rem 0.75rem;
+    text-align: left;
+    transition: border-color var(--transition-fast),
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.reviews__read-more:hover {
+    background-color: var(--color-accent-light);
+    border-color: var(--color-accent);
+    color: var(--color-accent-hover);
+}
+
 
 /* Автор */
 
@@ -1325,6 +1357,10 @@ REVIEWS
     padding-top: var(--space-4);
     border-top: 1px solid var(--color-border);
     margin-top: auto;
+}
+
+.reviews__card--long .reviews__card-author {
+    display: none;
 }
 
 .reviews__card-name {
@@ -1957,6 +1993,122 @@ CONTACT — АДАПТИВ
 /* ============================================================
 MODAL
 ============================================================ */
+
+.review-modal[hidden] {
+    display: none;
+}
+
+.review-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+}
+
+.review-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-overlay-strong);
+    backdrop-filter: blur(4px);
+}
+
+.review-modal__box {
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-10);
+    max-width: 680px;
+    width: 100%;
+    max-height: min(760px, 86vh);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    box-shadow: var(--shadow-lg);
+}
+
+.review-modal__close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color var(--transition-fast),
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.review-modal__close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background-color: var(--color-accent-light);
+}
+
+.review-modal__stars {
+    display: flex;
+    gap: 3px;
+    color: var(--color-accent);
+    padding-right: var(--space-12);
+}
+
+.review-modal__stars svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.review-modal__text {
+    color: var(--color-text-secondary);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    overflow-y: auto;
+    padding-right: var(--space-2);
+}
+
+.review-modal__author {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+}
+
+.review-modal__name {
+    color: var(--color-text-primary);
+    font-size: var(--text-base);
+    font-weight: 500;
+}
+
+.review-modal__meta {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 768px) {
+    .review-modal {
+        padding: var(--space-4);
+    }
+
+    .review-modal__box {
+        padding: var(--space-8) var(--space-6);
+        max-height: 86vh;
+    }
+
+    .review-modal__text {
+        font-size: var(--text-base);
+    }
+}
 
 .modal[hidden] {
     display: none;

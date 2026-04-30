@@ -322,7 +322,7 @@
                                 </div>
                                 <p class="reviews__card-text">Хочу выразить благодарность Елене Валерьевне за эффективные и продуктивные занятия. Елена Валерьевна - прекрасный логопед, профессионал! Она чувствует ребёнка, занятия разнообразные, всегда придумывает что-то новенькое и интересное. Спасибо!</p>
                                 <div class="reviews__card-author">
-                                    <span class="reviews__card-name">Мама Милы, 5 лет</span>
+                                    <span class="reviews__card-name">Мама Данель, 7 лет</span>
                                     <span class="reviews__card-meta">Очные занятия · Алматы</span>
                                 </div>
                             </article>
@@ -337,7 +337,7 @@
                                 </div>
                                 <p class="reviews__card-text">Когда мы впервые пришли к логопеду Елене, моя дочь даже отдельные слова не могла произносить - только первый слог. У неё непростой характер, и я переживала, что будет сложно наладить контакт. Но Елена с первого занятия нашла подход, расположила к себе, и занятия стали для дочки в радость. За 9 месяцев мы увидели потрясающий результат - теперь дочь говорит без остановки, строит фразы, делится мыслями и эмоциями. Елена не только профессионал своего дела, но и очень тёплый, заботливый человек: всегда встречает с улыбкой, угощает сушками и киндерами, создаёт уютную атмосферу, в которой ребёнку хочется учиться. Спасибо Елене огромное за труд, терпение🥹🥹❤️❤️😘😘😘</p>
                                 <div class="reviews__card-author">
-                                    <span class="reviews__card-name">Мама Алии, 3 года</span>
+                                    <span class="reviews__card-name">Мама Томирис, 3 года</span>
                                     <span class="reviews__card-meta">Очные занятия · Алматы</span>
                                 </div>
                             </article>
@@ -410,7 +410,7 @@
                                     <svg viewBox="0 0 16 16"><path d="M8 1l1.85 3.75L14 5.5l-3 2.92.71 4.13L8 10.35l-3.71 2.2.71-4.13L2 5.5l4.15-.75z" fill="currentColor"/></svg>
                                     <svg viewBox="0 0 16 16"><path d="M8 1l1.85 3.75L14 5.5l-3 2.92.71 4.13L8 10.35l-3.71 2.2.71-4.13L2 5.5l4.15-.75z" fill="currentColor"/></svg>
                                 </div>
-                                <p class="reviews__card-text">Все чётко по плану, а главное заточена на результат! Наблюдаю за дочей,прогресс колосальный! Спасибо большое, искренне🌸🫶</p>
+                                <p class="reviews__card-text">Все чётко по плану, а главное заточена на результат! Наблюдаю за дочей, прогресс колосальный! Спасибо большое, искренне🌸🫶</p>
                                 <div class="reviews__card-author">
                                     <span class="reviews__card-name">Мама Николая, 6 лет</span>
                                     <span class="reviews__card-meta">Коррекция звукопроизношения</span>
@@ -747,6 +747,24 @@
                 </div>
             </div>
         </footer>
+
+        <div class="review-modal" id="review-modal" hidden>
+            <div class="review-modal__overlay" id="review-modal-overlay"></div>
+            <div class="review-modal__box">
+                <button class="review-modal__close" id="review-modal-close" type="button" aria-label="Закрыть отзыв">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18"/>
+                        <path d="M6 6l12 12"/>
+                    </svg>
+                </button>
+                <div class="review-modal__stars" id="review-modal-stars"></div>
+                <p class="review-modal__text" id="review-modal-text"></p>
+                <div class="review-modal__author">
+                    <span class="review-modal__name" id="review-modal-name"></span>
+                    <span class="review-modal__meta" id="review-modal-meta"></span>
+                </div>
+            </div>
+        </div>
 
         <!-- Модальное окно после отправки -->
         <div class="modal" id="contact-modal" hidden>
