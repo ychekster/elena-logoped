@@ -255,12 +255,45 @@ const TABLET_BREAKPOINT = 1024;
     const modal = document.getElementById('contact-modal');
     const overlay = document.getElementById('modal-overlay');
     const closeButton = document.getElementById('modal-close');
+    const submitButton = form?.querySelector('button[type="submit"]');
+    const modalIcon = modal?.querySelector('.modal__icon');
+    const modalTitle = modal?.querySelector('.modal__title');
+    const modalText = modal?.querySelector('.modal__text');
 
-    if (!form || !modal || !overlay || !closeButton) {
+    if (!form || !modal || !overlay || !closeButton || !submitButton || !modalIcon || !modalTitle || !modalText) {
         return;
     }
 
+    const defaultSubmitText = submitButton.textContent;
+    let isSubmitting = false;
+    const modalContent = {
+        success: {
+            title: 'Заявка отправлена',
+            text: 'Отвечу в течение дня. Спасибо, что обратились.',
+            icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+        },
+        error: {
+            title: 'Не удалось отправить заявку',
+            text: 'Пожалуйста, попробуйте ещё раз или напишите напрямую в Telegram или WhatsApp.',
+            icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        },
+    };
+
     const getRequiredFields = () => Array.from(form.querySelectorAll('[required]'));
+
+    const setSubmitState = (isLoading) => {
+        submitButton.disabled = isLoading;
+        submitButton.textContent = isLoading ? 'Отправляется...' : defaultSubmitText;
+    };
+
+    const setModalContent = (type) => {
+        const content = modalContent[type];
+
+        modal.classList.toggle('modal--error', type === 'error');
+        modalIcon.innerHTML = content.icon;
+        modalTitle.textContent = content.title;
+        modalText.textContent = content.text;
+    };
 
     const openModal = () => {
         modal.hidden = false;
@@ -295,6 +328,10 @@ const TABLET_BREAKPOINT = 1024;
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
+        if (isSubmitting) {
+            return;
+        }
+
         if (!validateForm()) {
             return;
         }
@@ -310,6 +347,9 @@ const TABLET_BREAKPOINT = 1024;
         };
 
         try {
+            isSubmitting = true;
+            setSubmitState(true);
+
             const response = await fetch('/.netlify/functions/send-telegram', {
                 method: 'POST',
                 headers: {
@@ -323,9 +363,14 @@ const TABLET_BREAKPOINT = 1024;
             }
 
             form.reset();
+            setModalContent('success');
             openModal();
         } catch (error) {
-            alert('Не удалось отправить заявку. Напишите напрямую в Telegram или WhatsApp.');
+            setModalContent('error');
+            openModal();
+        } finally {
+            isSubmitting = false;
+            setSubmitState(false);
         }
     });
 

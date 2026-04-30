@@ -242,6 +242,12 @@ section:nth-child(even) {
     transform: translateY(1px);
 }
 
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+}
+
 /* Основная кнопка */
 .btn-primary {
     background-color: var(--color-accent);
@@ -2000,6 +2006,11 @@ MODAL
     justify-content: center;
     color: var(--color-accent);
     margin-bottom: var(--space-2);
+}
+
+.modal--error .modal__icon {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-strong);
 }
 
 .modal__title {
