@@ -106,6 +106,7 @@
 html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
 }
 
 @media (max-width: 768px) {
