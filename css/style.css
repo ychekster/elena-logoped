@@ -401,6 +401,10 @@ HEADER
     color: var(--color-text-primary);
 }
 
+.header__nav-cta-item {
+    display: none;
+}
+
 
 /* CTA */
 
@@ -521,8 +525,24 @@ HEADER
         display: none;
     }
 
-    .header__nav-list li:last-child .header__nav-link {
+    .header__nav-list li:last-child .header__nav-link,
+    .header__nav-list li:nth-last-child(2) .header__nav-link {
         border-bottom: none;
+    }
+
+    .header__nav-cta-item {
+        display: block;
+        width: 100%;
+        margin-top: var(--space-8);
+    }
+
+    .header__nav-cta {
+        width: 100%;
+        min-height: 44px;
+        padding-inline: var(--space-6);
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 0;
     }
 
 }

@@ -22,6 +22,7 @@ const TABLET_BREAKPOINT = 1024;
     const burger = header.querySelector('.header__burger');
     const nav = header.querySelector('.header__nav');
     const navLinks = Array.from(header.querySelectorAll('.header__nav-link'));
+    const navCloseLinks = Array.from(header.querySelectorAll('.header__nav-link, .header__nav-cta'));
     const sections = Array.from(document.querySelectorAll('section[id]'));
 
     if (!burger || !nav) {
@@ -50,7 +51,7 @@ const TABLET_BREAKPOINT = 1024;
         setNavState(!burger.classList.contains('open'));
     });
 
-    navLinks.forEach((link) => {
+    navCloseLinks.forEach((link) => {
         link.addEventListener('click', closeNav);
     });
 
