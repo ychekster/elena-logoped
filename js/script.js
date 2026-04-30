@@ -188,7 +188,7 @@ const TABLET_BREAKPOINT = 1024;
             const button = document.createElement('button');
             button.className = 'reviews__read-more';
             button.type = 'button';
-            button.textContent = 'Читать далее...';
+            button.textContent = 'Читать отзыв...';
             button.addEventListener('click', () => openReviewModal(card));
 
             author.before(button);
