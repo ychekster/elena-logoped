@@ -1,6 +1,41 @@
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 
+(function preventDoubleTapZoom() {
+    let lastTouchEnd = 0;
+    let hadMultiTouch = false;
+
+    document.addEventListener(
+        'touchstart',
+        (event) => {
+            hadMultiTouch = event.touches.length > 1;
+        },
+        { passive: true }
+    );
+
+    document.addEventListener(
+        'touchend',
+        (event) => {
+            if (hadMultiTouch || event.changedTouches.length !== 1) {
+                if (event.touches.length === 0) {
+                    hadMultiTouch = false;
+                }
+
+                return;
+            }
+
+            const now = Date.now();
+
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+
+            lastTouchEnd = now;
+        },
+        { passive: false }
+    );
+})();
+
 (function initHeader() {
     const header = document.getElementById('header');
     const backdrop = document.getElementById('nav-backdrop');
