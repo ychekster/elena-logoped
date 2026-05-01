@@ -415,6 +415,7 @@ const TABLET_BREAKPOINT = 1024;
             }
 
             form.reset();
+            ym(108996800,'reachGoal','form_submit');
             setModalContent('success');
             openModal();
         } catch (error) {
