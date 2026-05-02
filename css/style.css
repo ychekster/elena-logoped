@@ -2511,3 +2511,191 @@ FOOTER — АДАПТИВ
 }
 
 
+/* ============================================================
+MOBILE TOUCH STATES
+============================================================ */
+
+@media (max-width: 768px) and (hover: none),
+       (max-width: 768px) and (pointer: coarse) {
+    .header__logo:hover {
+        color: var(--color-text-primary);
+    }
+
+    .header__nav-link:hover {
+        color: var(--color-text-secondary);
+    }
+
+    .header__nav-link:hover::after {
+        transform: scaleX(0);
+    }
+
+    .header__nav-link.active:hover {
+        color: var(--color-text-primary);
+    }
+
+    .header__nav-link.active:hover::after {
+        transform: scaleX(1);
+    }
+
+    .about__badge:hover {
+        transform: none;
+        border-color: var(--color-border);
+        color: var(--color-text-secondary);
+    }
+
+    .about__badge:nth-child(2):hover {
+        transform: rotate(-1.5deg);
+    }
+
+    .about__badge:nth-child(3):hover {
+        transform: rotate(1deg);
+    }
+
+    .about__badge:nth-child(5):hover {
+        transform: rotate(-1deg);
+    }
+
+    .about__badge:nth-child(6):hover {
+        transform: rotate(1.5deg);
+    }
+
+    .about__collage-item:hover,
+    .faq__collage-item:hover,
+    .contact__collage-item:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .about__collage-item--1:hover,
+    .faq__collage-item:first-child:hover {
+        box-shadow: var(--shadow-lg);
+    }
+
+    .about__collage-item:hover img,
+    .faq__collage-item:hover img,
+    .contact__collage-item:hover img {
+        transform: none;
+    }
+
+    .concerns__card:hover {
+        background-color: var(--color-surface);
+    }
+
+    .concerns__card:hover .concerns__card-num {
+        color: var(--color-border);
+    }
+
+    .services__card:hover,
+    .services__card--primary:hover {
+        box-shadow: none;
+    }
+
+    .contact__link:hover {
+        border-color: var(--color-border);
+        background-color: var(--color-surface);
+    }
+
+    .contact__link:hover .contact__link-icon {
+        background-color: var(--color-accent-light);
+        color: var(--color-accent);
+    }
+
+    .contact__form-consent-link:hover {
+        color: var(--color-accent);
+    }
+
+    .footer__logo:hover {
+        opacity: 1;
+    }
+
+    a.footer__nav-link:hover,
+    .footer__contact-link:hover {
+        color: var(--color-footer-soft);
+    }
+
+    .footer__contact-link:hover svg {
+        opacity: 0.6;
+    }
+
+    .footer__privacy-link:hover {
+        color: var(--color-text-muted);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-accent);
+        border-color: var(--color-accent);
+    }
+
+    .btn-primary:active {
+        background-color: var(--color-accent-hover);
+        border-color: var(--color-accent-hover);
+    }
+
+    .btn-secondary:hover {
+        background-color: transparent;
+        border-color: var(--color-border);
+        color: var(--color-text-primary);
+    }
+
+    .btn-secondary:active {
+        background-color: var(--color-accent-light);
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+    }
+
+    .btn-whatsapp:hover {
+        background-color: var(--color-whatsapp);
+        border-color: var(--color-whatsapp);
+    }
+
+    .btn-whatsapp:active {
+        background-color: var(--color-whatsapp-hover);
+        border-color: var(--color-whatsapp-hover);
+    }
+
+    .services__card-btn:hover {
+        background-color: transparent;
+        border-color: var(--color-border);
+        color: var(--color-text-primary);
+    }
+
+    .services__card-btn:active {
+        background-color: var(--color-accent-light);
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+    }
+
+    .services__card--primary .services__card-btn:hover {
+        background-color: transparent;
+        border-color: var(--color-surface-contrast-strong);
+        color: var(--color-text-on-accent);
+    }
+
+    .services__card--primary .services__card-btn:active {
+        background-color: var(--color-surface-contrast);
+        border-color: var(--color-surface-contrast-stronger);
+    }
+
+    .reviews__nav-btn:hover,
+    .review-modal__close:hover {
+        border-color: var(--color-border);
+        color: var(--color-text-secondary);
+        background-color: var(--color-surface);
+    }
+
+    .reviews__nav-btn:active,
+    .review-modal__close:active {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+        background-color: var(--color-accent-light);
+    }
+
+    .reviews__read-more:hover {
+        color: var(--color-accent);
+    }
+
+    .reviews__read-more:active {
+        color: var(--color-accent-hover);
+    }
+}
+
+
