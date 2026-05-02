@@ -420,6 +420,23 @@ const TABLET_BREAKPOINT = 1024;
         restorePlaceholder(field);
     };
 
+    const isFieldInViewport = (field) => {
+        const rect = field.getBoundingClientRect();
+        const header = document.getElementById('header');
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const topSafeArea = Math.max(0, headerBottom) + 12;
+
+        return rect.top >= topSafeArea && rect.bottom <= window.innerHeight;
+    };
+
+    const focusFieldError = (field) => {
+        field.focus({ preventScroll: true });
+
+        if (!isFieldInViewport(field)) {
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
     const getChildAge = (value) => {
         const match = String(value || '').match(/\d+/);
 
@@ -501,8 +518,7 @@ const TABLET_BREAKPOINT = 1024;
         });
 
         if (firstInvalidField) {
-            firstInvalidField.focus({ preventScroll: true });
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            focusFieldError(firstInvalidField);
             return false;
         }
 
@@ -525,8 +541,7 @@ const TABLET_BREAKPOINT = 1024;
         const silent = !currentValue || field.name === 'consent' || field instanceof HTMLSelectElement;
 
         showFieldError(field, data.message || validationMessages[fieldName], { silent });
-        field.focus({ preventScroll: true });
-        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        focusFieldError(field);
         return true;
     };
 
