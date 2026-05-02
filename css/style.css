@@ -871,6 +871,12 @@ ABOUT — АДАПТИВ
 }
 
 @media (max-width: 768px) {
+    .about,
+    .services,
+    .faq {
+        border-radius: 0;
+    }
+
     .about__inner {
         grid-template-columns: 1fr;
         gap: var(--space-10);
@@ -2241,7 +2247,7 @@ MODAL
     background-color: var(--color-error-bg);
 }
 
-.contact__form-input.error::placeholder {
+.contact__form-input--error-message::placeholder {
     color: var(--color-error-strong);
     font-size: 0.875rem;
     opacity: 1;
@@ -2530,6 +2536,14 @@ FOOTER — АДАПТИВ
 @media (max-width: 480px) {
     .footer__inner {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .about,
+    .services,
+    .faq {
+        border-radius: 0;
     }
 }
 

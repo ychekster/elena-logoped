@@ -396,18 +396,25 @@ const TABLET_BREAKPOINT = 1024;
         field.classList.add('error');
         field.setAttribute('aria-invalid', 'true');
 
+        if (options.silent) {
+            field.classList.remove('contact__form-input--error-message');
+            restorePlaceholder(field);
+            return;
+        }
+
         if (
-            !options.silent &&
             (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
             field.type !== 'checkbox'
         ) {
             field.value = '';
+            field.classList.add('contact__form-input--error-message');
             field.setAttribute('placeholder', message);
         }
     };
 
     const clearFieldError = (field) => {
         field.classList.remove('error');
+        field.classList.remove('contact__form-input--error-message');
         field.removeAttribute('aria-invalid');
         field.removeAttribute('aria-describedby');
         restorePlaceholder(field);
