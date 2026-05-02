@@ -320,6 +320,25 @@ const TABLET_BREAKPOINT = 1024;
     const defaultSubmitText = submitButton.textContent;
     let isSubmitting = false;
 
+    const validationMessages = {
+        name: '2-40 символов',
+        phone: 'Телефон или @username',
+        age: 'От 3 до 18 лет',
+        format: 'Выберите формат',
+        message: 'До 700 символов',
+        consent: 'Подтвердите согласие на обработку персональных данных',
+    };
+
+    const fieldByServerName = {
+        name: 'name',
+        contact: 'phone',
+        phone: 'phone',
+        age: 'age',
+        format: 'format',
+        message: 'message',
+        consent: 'consent',
+    };
+
     if (formStartedAtField) {
         formStartedAtField.value = String(Date.now());
     }
@@ -337,7 +356,11 @@ const TABLET_BREAKPOINT = 1024;
         },
     };
 
-    const getRequiredFields = () => Array.from(form.querySelectorAll('[required]'));
+    const getFormField = (name) => form.querySelector(`[name="${name}"]`);
+
+    Array.from(form.querySelectorAll('input, textarea')).forEach((field) => {
+        field.dataset.defaultPlaceholder = field.getAttribute('placeholder') || '';
+    });
 
     const setSubmitState = (isLoading) => {
         submitButton.disabled = isLoading;
@@ -363,24 +386,127 @@ const TABLET_BREAKPOINT = 1024;
         document.body.style.overflow = '';
     };
 
+    const restorePlaceholder = (field) => {
+        if ('defaultPlaceholder' in field.dataset) {
+            field.setAttribute('placeholder', field.dataset.defaultPlaceholder);
+        }
+    };
+
+    const showFieldError = (field, message, options = {}) => {
+        field.classList.add('error');
+        field.setAttribute('aria-invalid', 'true');
+
+        if (
+            !options.silent &&
+            (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
+            field.type !== 'checkbox'
+        ) {
+            field.value = '';
+            field.setAttribute('placeholder', message);
+        }
+    };
+
     const clearFieldError = (field) => {
         field.classList.remove('error');
+        field.removeAttribute('aria-invalid');
+        field.removeAttribute('aria-describedby');
+        restorePlaceholder(field);
+    };
+
+    const getChildAge = (value) => {
+        const match = String(value || '').match(/\d+/);
+
+        return match ? Number(match[0]) : null;
+    };
+
+    const isValidContact = (value) => {
+        const contact = String(value || '').trim();
+
+        if (contact.length < 5 || contact.length > 40) {
+            return false;
+        }
+
+        if (contact.startsWith('@')) {
+            return /^@[a-zA-Z0-9_]{3,32}$/.test(contact);
+        }
+
+        return /^[+()\d\s-]+$/.test(contact) && contact.replace(/\D/g, '').length >= 5;
     };
 
     const validateField = (field) => {
-        clearFieldError(field);
+        const value = field.type === 'checkbox' ? field.checked : field.value.trim();
+        let message = '';
+        let isEmpty = false;
 
-        const isValid = field.type === 'checkbox' ? field.checked : Boolean(field.value.trim());
-
-        if (!isValid) {
-            field.classList.add('error');
+        if (field.name === 'name' && (String(value).length < 2 || String(value).length > 40)) {
+            message = validationMessages.name;
+            isEmpty = !value;
         }
 
-        return isValid;
+        if (field.name === 'phone' && !isValidContact(value)) {
+            message = validationMessages.phone;
+            isEmpty = !value;
+        }
+
+        if (field.name === 'age') {
+            const age = getChildAge(value);
+
+            if (!age || age < 3 || age > 18) {
+                message = validationMessages.age;
+                isEmpty = !value;
+            }
+        }
+
+        if (field.name === 'format' && !value) {
+            message = validationMessages.format;
+            isEmpty = true;
+        }
+
+        if (field.name === 'message' && String(value).length > 700) {
+            message = validationMessages.message;
+        }
+
+        if (field.name === 'consent' && !value) {
+            message = validationMessages.consent;
+            isEmpty = true;
+        }
+
+        if (message) {
+            showFieldError(field, message, { silent: isEmpty || field.name === 'consent' || field instanceof HTMLSelectElement });
+            return false;
+        }
+
+        clearFieldError(field);
+        return true;
     };
 
     const validateForm = () => {
-        return getRequiredFields().every(validateField);
+        const fields = ['name', 'phone', 'age', 'format', 'message', 'consent']
+            .map(getFormField)
+            .filter(Boolean);
+
+        return fields.every(validateField);
+    };
+
+    const showServerFieldError = (data) => {
+        if (!data?.field) {
+            return false;
+        }
+
+        const fieldName = fieldByServerName[data.field] || data.field;
+        const field = getFormField(fieldName);
+
+        if (!field) {
+            return false;
+        }
+
+        const currentValue = field.type === 'checkbox' ? field.checked : field.value.trim();
+        const silent = !currentValue || field.name === 'consent' || field instanceof HTMLSelectElement;
+
+        showFieldError(field, data.message || validationMessages[fieldName], { silent });
+        field.focus({ preventScroll: true });
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
     };
 
     form.addEventListener('submit', async (event) => {
@@ -419,11 +545,22 @@ const TABLET_BREAKPOINT = 1024;
                 body: JSON.stringify(payload)
             });
 
+            const result = await response.json().catch(() => null);
+
             if (!response.ok) {
+                if (showServerFieldError(result)) {
+                    return;
+                }
+
                 throw new Error('Form submit failed');
             }
 
             form.reset();
+
+            if (formStartedAtField) {
+                formStartedAtField.value = String(Date.now());
+            }
+
             if (window.ym) {
                 ym(108996800, 'reachGoal', 'form_submit');
             }
@@ -441,7 +578,10 @@ const TABLET_BREAKPOINT = 1024;
     form.addEventListener('input', (event) => {
         const field = event.target;
 
-        if (!(field instanceof HTMLElement) || !field.classList.contains('error')) {
+        if (
+            !(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) ||
+            !field.classList.contains('error')
+        ) {
             return;
         }
 
@@ -453,10 +593,15 @@ const TABLET_BREAKPOINT = 1024;
             return;
         }
 
-        if (
-            (field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) &&
-            field.value.trim()
-        ) {
+        if (field instanceof HTMLSelectElement) {
+            if (field.value) {
+                clearFieldError(field);
+            }
+
+            return;
+        }
+
+        if (field.value.trim()) {
             clearFieldError(field);
         }
     });

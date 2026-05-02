@@ -2,8 +2,16 @@ const MIN_FORM_FILL_TIME_MS = 3000;
 const REPEAT_SUBMIT_WINDOW_MS = 15000;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
-const MAX_FIELD_LENGTH = 120;
-const MAX_MESSAGE_LENGTH = 1000;
+const MAX_MESSAGE_LENGTH = 700;
+
+const validationMessages = {
+    name: '2-40 символов',
+    age: 'От 3 до 18 лет',
+    phone: 'Телефон или Telegram',
+    message: 'До 700 символов',
+    format: 'Выберите формат',
+    consent: 'Подтвердите согласие на обработку персональных данных'
+};
 
 const allowedFormats = new Set([
     'Очная диагностика',
@@ -85,6 +93,13 @@ const jsonResponse = (statusCode, body) => ({
     body: JSON.stringify(body)
 });
 
+const fieldError = (code, field, message) => ({
+    ok: false,
+    code,
+    field,
+    message
+});
+
 const getHeader = (headers, name) => {
     const foundKey = Object.keys(headers || {}).find((key) => key.toLowerCase() === name.toLowerCase());
     return foundKey ? headers[foundKey] : '';
@@ -142,38 +157,28 @@ const isGarbageValue = (value) => {
 };
 
 const isValidName = (name) => {
-    if (name.length < 2 || name.length > 60) {
-        return false;
-    }
-
-    if (hasUrl(name) || isGarbageValue(name)) {
-        return false;
-    }
-
-    return /^[\p{L}\s.'-]+$/u.test(name);
+    return name.length >= 2 && name.length <= 40;
 };
 
 const isValidContact = (contact) => {
-    if (contact.length < 5 || contact.length > 80) {
+    if (contact.length < 5 || contact.length > 40) {
         return false;
     }
 
-    const normalized = contact.replace(/\s+/g, '');
-    const digits = normalized.replace(/\D/g, '');
-    const repeatedDigitsOnly = /^(\d)\1+$/.test(digits);
-    const knownJunkContact = /^(test|testing|qwerty|asdf|asdfgh|admin|unknown|none|null|undefined|aaaaaa|123456)$/i;
-    const isPhoneLike = digits.length >= 7 && digits.length <= 15 && !repeatedDigitsOnly && /^[+()\d\s-]+$/.test(contact);
-    const isTelegramHandle = /^@?[a-zA-Z0-9_]{5,32}$/.test(normalized);
-    const isMessengerLink = /^https?:\/\/(t\.me|wa\.me)\/[a-zA-Z0-9_+/-]{5,40}$/i.test(normalized);
-
-    if (knownJunkContact.test(normalized)) {
-        return false;
+    if (contact.startsWith('@')) {
+        return /^@[a-zA-Z0-9_]{3,32}$/.test(contact);
     }
 
-    return isPhoneLike || isTelegramHandle || isMessengerLink;
+    return /^[+()\d\s-]+$/.test(contact) && contact.replace(/\D/g, '').length >= 5;
 };
 
 const isTruthyConsent = (value) => ['yes', 'on', 'true', '1'].includes(String(value || '').toLowerCase());
+
+const getChildAge = (value) => {
+    const match = String(value || '').match(/\d+/);
+
+    return match ? Number(match[0]) : null;
+};
 
 const validateSpam = (data) => {
     console.log('send-telegram check: spam honeypot');
@@ -256,58 +261,56 @@ const validateFields = (data) => {
     console.log('send-telegram check: field validation');
     const name = toCleanString(data.name);
     const phone = toCleanString(data.phone);
-    const age = toCleanString(data.age);
+    const ageRaw = toCleanString(data.age);
+    const age = getChildAge(ageRaw);
     const format = toCleanString(data.format);
     const message = toCleanString(data.message);
 
-    console.log('send-telegram check: max field length');
-    if ([name, phone, age, format].some((field) => field.length > MAX_FIELD_LENGTH)) {
-        console.log('send-telegram rejection: validation_failed: field too long');
-        return null;
+    console.log('send-telegram check: name');
+    if (!isValidName(name)) {
+        console.log('send-telegram rejection: invalid_name');
+        return fieldError('invalid_name', 'name', validationMessages.name);
     }
 
-    console.log('send-telegram check: required fields and consent');
-    if (!name || !phone || !age || !format || !isTruthyConsent(data.consent)) {
-        console.log('send-telegram rejection: validation_failed: missing required field or consent');
-        return null;
-    }
-
-    console.log('send-telegram check: name and contact format');
-    if (!isValidName(name) || !isValidContact(phone)) {
-        console.log('send-telegram rejection: validation_failed: invalid name or contact');
-        return null;
+    console.log('send-telegram check: contact');
+    if (!isValidContact(phone)) {
+        console.log('send-telegram rejection: invalid_contact');
+        return fieldError('invalid_contact', 'phone', validationMessages.phone);
     }
 
     console.log('send-telegram check: age');
-    if (age.length < 1 || age.length > 40 || hasUrl(age) || isGarbageValue(age)) {
-        console.log('send-telegram rejection: validation_failed: invalid age');
-        return null;
+    if (!age || age < 3 || age > 18) {
+        console.log('send-telegram rejection: invalid_age');
+        return fieldError('invalid_age', 'age', validationMessages.age);
     }
 
     console.log('send-telegram check: allowed format');
     if (!allowedFormats.has(format)) {
-        console.log('send-telegram rejection: validation_failed: invalid format');
-        return null;
+        console.log('send-telegram rejection: invalid_format');
+        return fieldError('invalid_format', 'format', validationMessages.format);
     }
 
-    console.log('send-telegram check: message length and repeated chars');
-    if (message.length > MAX_MESSAGE_LENGTH || hasRepeatedChars(message)) {
-        console.log('send-telegram rejection: validation_failed: invalid message length or repeated chars');
-        return null;
+    console.log('send-telegram check: message length');
+    if (message.length > MAX_MESSAGE_LENGTH) {
+        console.log('send-telegram rejection: invalid_message');
+        return fieldError('invalid_message', 'message', validationMessages.message);
     }
 
-    console.log('send-telegram check: message links');
-    if (message && /https?:\/\/|www\./i.test(message)) {
-        console.log('send-telegram rejection: validation_failed: link spam in message');
-        return null;
+    console.log('send-telegram check: consent');
+    if (!isTruthyConsent(data.consent)) {
+        console.log('send-telegram rejection: missing_consent');
+        return fieldError('missing_consent', 'consent', validationMessages.consent);
     }
 
     return {
-        name,
-        phone,
-        age,
-        format,
-        message: message.slice(0, MAX_MESSAGE_LENGTH)
+        ok: true,
+        data: {
+            name,
+            phone,
+            age: ageRaw,
+            format,
+            message: message.slice(0, MAX_MESSAGE_LENGTH)
+        }
     };
 };
 
@@ -328,7 +331,7 @@ exports.handler = async function (event) {
     console.log('send-telegram check: request method');
     if (event.httpMethod !== 'POST') {
         console.log('send-telegram rejection: method_not_allowed', { method: event.httpMethod });
-        return jsonResponse(405, { ok: false, error: 'method_not_allowed' });
+        return jsonResponse(405, { ok: false, code: 'bad_request' });
     }
 
     let data;
@@ -341,23 +344,25 @@ exports.handler = async function (event) {
             message: error.message,
             statusCode: error.statusCode || 400
         });
-        return jsonResponse(error.statusCode || 400, { ok: false, error: 'bad_request' });
+        return jsonResponse(error.statusCode || 400, { ok: false, code: 'bad_request' });
     }
 
     logParsedData(data);
 
     if (!validateSpam(data)) {
-        return jsonResponse(400, { ok: false, error: 'bad_request' });
+        return jsonResponse(400, { ok: false, code: 'spam_rejected' });
     }
 
-    const validated = validateFields(data);
+    const validationResult = validateFields(data);
 
-    if (!validated) {
-        return jsonResponse(422, { ok: false, error: 'validation_failed' });
+    if (!validationResult.ok) {
+        return jsonResponse(422, validationResult);
     }
+
+    const validated = validationResult.data;
 
     if (!checkRateLimit(getClientKey(event, validated.phone))) {
-        return jsonResponse(429, { ok: false, error: 'too_many_requests' });
+        return jsonResponse(429, { ok: false, code: 'rate_limited' });
     }
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -373,7 +378,7 @@ exports.handler = async function (event) {
             hasTelegramBotToken: Boolean(botToken),
             hasTelegramChatId: Boolean(chatId)
         });
-        return jsonResponse(500, { ok: false, error: 'server_configuration_error' });
+        return jsonResponse(500, { ok: false, code: 'server_configuration_error' });
     }
 
     console.log('send-telegram validation passed: preparing Telegram request');
@@ -409,7 +414,7 @@ ${validated.message || 'Не указано'}
             console.error('send-telegram error: Telegram API returned non-ok status', {
                 status: telegramResponse.status
             });
-            return jsonResponse(502, { ok: false, error: 'telegram_api_error' });
+            return jsonResponse(502, { ok: false, code: 'telegram_api_error' });
         }
 
         console.log('send-telegram success');
@@ -418,6 +423,6 @@ ${validated.message || 'Не указано'}
         console.error('send-telegram error: Telegram request failed', {
             message: error.message
         });
-        return jsonResponse(502, { ok: false, error: 'telegram_api_error' });
+        return jsonResponse(502, { ok: false, code: 'telegram_api_error' });
     }
 };

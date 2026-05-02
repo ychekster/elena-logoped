@@ -1822,6 +1822,23 @@ CONTACT
     color: var(--color-text-muted);
 }
 
+.contact__form-input:-webkit-autofill,
+.contact__form-input:-webkit-autofill:hover,
+.contact__form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text-primary);
+    caret-color: var(--color-text-primary);
+    box-shadow: 0 0 0 1000px var(--color-bg) inset;
+    border-color: var(--color-border);
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.contact__form-input.error:-webkit-autofill,
+.contact__form-input.error:-webkit-autofill:hover,
+.contact__form-input.error:-webkit-autofill:focus {
+    box-shadow: 0 0 0 1000px var(--color-error-bg) inset;
+    border-color: var(--color-error);
+}
+
 .contact__form-select-wrap {
     position: relative;
 }
@@ -2222,6 +2239,12 @@ MODAL
 .contact__form-input.error {
     border-color: var(--color-error);
     background-color: var(--color-error-bg);
+}
+
+.contact__form-input.error::placeholder {
+    color: var(--color-error-strong);
+    font-size: 0.875rem;
+    opacity: 1;
 }
 
 .contact__form-required {
