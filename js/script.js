@@ -308,6 +308,7 @@ const TABLET_BREAKPOINT = 1024;
     const overlay = document.getElementById('modal-overlay');
     const closeButton = document.getElementById('modal-close');
     const submitButton = form?.querySelector('button[type="submit"]');
+    const formStartedAtField = form?.querySelector('input[name="formStartedAt"]');
     const modalIcon = modal?.querySelector('.modal__icon');
     const modalTitle = modal?.querySelector('.modal__title');
     const modalText = modal?.querySelector('.modal__text');
@@ -318,6 +319,11 @@ const TABLET_BREAKPOINT = 1024;
 
     const defaultSubmitText = submitButton.textContent;
     let isSubmitting = false;
+
+    if (formStartedAtField) {
+        formStartedAtField.value = String(Date.now());
+    }
+
     const modalContent = {
         success: {
             title: 'Заявка отправлена',
@@ -395,7 +401,10 @@ const TABLET_BREAKPOINT = 1024;
             phone: formData.get('phone'),
             age: formData.get('age'),
             format: formData.get('format'),
-            message: formData.get('message')
+            message: formData.get('message'),
+            consent: formData.get('consent'),
+            website: formData.get('website'),
+            formStartedAt: formData.get('formStartedAt')
         };
 
         try {
