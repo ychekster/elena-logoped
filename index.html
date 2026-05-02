@@ -23,6 +23,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png">
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+        <link rel="preload" as="image" href="images/hero-pc.webp" imagesrcset="images/hero-mobile.webp 658w, images/hero-pc.webp 675w" imagesizes="(max-width: 768px) 100vw, (max-width: 1024px) 360px, 420px" fetchpriority="high">
 
         <!-- Шрифты -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,9 +42,11 @@
                 k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
             })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=108996800', 'ym');
 
-            ym(108996800, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+            if (window.ym) {
+                ym(108996800, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+            }
         </script>
-        <noscript><div><img src="https://mc.yandex.ru/watch/108996800" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <noscript><div><img src="https://mc.yandex.ru/watch/108996800" width="1" height="1" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     </head>
     <body>
         <header class="header" id="header">
@@ -81,7 +84,10 @@
             <!-- HERO -->
             <section class="hero" id="hero">
                 <div class="hero__photo">
-                    <img src="images/hero-pc.webp" alt="Елена Чекстер — логопед-дефектолог">
+                    <picture>
+                        <source media="(max-width: 768px)" srcset="images/hero-mobile.webp">
+                        <img src="images/hero-pc.webp" width="675" height="900" alt="Елена Чекстер — логопед-дефектолог" fetchpriority="high" decoding="async">
+                    </picture>
                 </div>
                 <div class="hero__content">
                     <span class="eyebrow">Логопед-дефектолог · Алматы</span>
@@ -121,22 +127,22 @@
 
                     <div class="about__collage">
                         <div class="about__collage-item about__collage-item--1">
-                            <img src="images/about-1.webp" alt="Занятие с ребёнком">
+                            <img src="images/about-1.webp" width="700" height="846" alt="Занятие с ребёнком" loading="lazy" decoding="async">
                         </div>
                         <div class="about__collage-item about__collage-item--2">
-                            <img src="images/about-2.webp" alt="Логопед и ребёнок">
+                            <img src="images/about-2.webp" width="1535" height="1024" alt="Логопед и ребёнок" loading="lazy" decoding="async">
                         </div>
                         <div class="about__collage-item about__collage-item--3">
-                            <img src="images/about-3.webp" alt="Работа с карточками">
+                            <img src="images/about-3.webp" width="910" height="495" alt="Работа с карточками" loading="lazy" decoding="async">
                         </div>
                         <div class="about__collage-item about__collage-item--4">
-                            <img src="images/about-4.webp" alt="Счастливый ребёнок">
+                            <img src="images/about-4.webp" width="1024" height="768" alt="Счастливый ребёнок" loading="lazy" decoding="async">
                         </div>
                         <div class="about__collage-item about__collage-item--5">
-                            <img src="images/about-5.webp" alt="Ребёнок на занятии">
+                            <img src="images/about-5.webp" width="1000" height="667" alt="Ребёнок на занятии" loading="lazy" decoding="async">
                         </div>
                         <div class="about__collage-item about__collage-item--6">
-                            <img src="images/about-6.webp" alt="Игра с ребёнком">
+                            <img src="images/about-6.webp" width="998" height="751" alt="Игра с ребёнком" loading="lazy" decoding="async">
                         </div>
                     </div>
 
@@ -460,13 +466,13 @@
 
                         <div class="faq__collage">
                             <div class="faq__collage-item faq__collage-item--1">
-                                <img src="images/faq-1.webp" alt="Ребёнок занимается за столом">
+                                <img src="images/faq-1.webp" width="2048" height="1366" alt="Ребёнок занимается за столом" loading="lazy" decoding="async">
                             </div>
                             <div class="faq__collage-item faq__collage-item--2">
-                                <img src="images/faq-2.webp" alt="Ребёнок занимается с развивающими карточками">
+                                <img src="images/faq-2.webp" width="1236" height="920" alt="Ребёнок занимается с развивающими карточками" loading="lazy" decoding="async">
                             </div>
                             <div class="faq__collage-item faq__collage-item--3">
-                                <img src="images/faq-3.webp" alt="Ребёнок играет и развивается">
+                                <img src="images/faq-3.webp" width="2048" height="1365" alt="Ребёнок играет и развивается" loading="lazy" decoding="async">
                             </div>
                         </div>
 
@@ -675,10 +681,10 @@
 
                             <div class="contact__collage">
                                 <div class="contact__collage-item contact__collage-item--1">
-                                    <img src="images/contact-1.webp" alt="Занятие с ребёнком">
+                                    <img src="images/contact-1.webp" width="1290" height="860" alt="Занятие с ребёнком" loading="lazy" decoding="async">
                                 </div>
                                 <div class="contact__collage-item contact__collage-item--2">
-                                    <img src="images/contact-2.webp" alt="Ребёнок на занятии">
+                                    <img src="images/contact-2.webp" width="1289" height="860" alt="Ребёнок на занятии" loading="lazy" decoding="async">
                                 </div>
                             </div>
 
@@ -797,6 +803,6 @@
             </div>
         </div>
 
-        <script src="js/script.js"></script>
+        <script src="js/script.js" defer></script>
     </body>
 </html>
