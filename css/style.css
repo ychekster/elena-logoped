@@ -66,6 +66,7 @@
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 20px;
+    --radius-xxl: 52px;
     --radius-full: 9999px;
     --shadow-sm: 0 1px 3px rgba(42, 36, 32, 0.08);
     --shadow-md: 0 4px 16px rgba(42, 36, 32, 0.10);
@@ -654,6 +655,10 @@ HERO
 ABOUT
 ============================================================ */
 
+.about {
+    border-radius: var(--radius-xxl);
+}
+
 .about__inner {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1046,6 +1051,10 @@ CONCERNS — АДАПТИВ
 SERVICES
 ============================================================ */
 
+.services {
+    border-radius: var(--radius-xxl);
+}
+
 .services__head {
     margin-bottom: var(--space-10);
 }
@@ -1434,6 +1443,10 @@ REVIEWS — АДАПТИВ
 /* ============================================================
 FAQ
 ============================================================ */
+
+.faq {
+    border-radius: var(--radius-xxl);
+}
 
 .faq__inner {
     display: grid;
