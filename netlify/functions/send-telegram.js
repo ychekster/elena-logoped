@@ -15,6 +15,67 @@ const allowedFormats = new Set([
 
 const recentRequests = new Map();
 
+const redactValue = (value) => {
+    const cleanValue = toCleanString(value);
+
+    if (!cleanValue) {
+        return '';
+    }
+
+    return `[redacted length=${cleanValue.length}]`;
+};
+
+const redactRawBody = (event) => {
+    const contentType = getHeader(event.headers, 'content-type').split(';')[0].trim().toLowerCase();
+    const body = String(event.body || '').slice(0, 2000);
+
+    if (!body) {
+        return '';
+    }
+
+    try {
+        if (contentType === 'application/json' || contentType === '') {
+            const parsed = JSON.parse(body);
+
+            ['name', 'phone', 'message'].forEach((key) => {
+                if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+                    parsed[key] = redactValue(parsed[key]);
+                }
+            });
+
+            return JSON.stringify(parsed).slice(0, 1000);
+        }
+
+        if (contentType === 'application/x-www-form-urlencoded') {
+            const params = new URLSearchParams(body);
+
+            ['name', 'phone', 'message'].forEach((key) => {
+                if (params.has(key)) {
+                    params.set(key, redactValue(params.get(key)));
+                }
+            });
+
+            return params.toString().slice(0, 1000);
+        }
+    } catch (error) {
+        return '[unparseable body redacted]';
+    }
+
+    return body.slice(0, 1000);
+};
+
+const logParsedData = (data) => {
+    console.log('send-telegram parsed data', {
+        name: redactValue(data.name),
+        contact: redactValue(data.phone),
+        age: toCleanString(data.age),
+        format: toCleanString(data.format),
+        consent: data.consent,
+        website: data.website ? '[filled]' : '',
+        formStartedAt: data.formStartedAt
+    });
+};
+
 const jsonResponse = (statusCode, body) => ({
     statusCode,
     headers: {
@@ -115,15 +176,22 @@ const isValidContact = (contact) => {
 const isTruthyConsent = (value) => ['yes', 'on', 'true', '1'].includes(String(value || '').toLowerCase());
 
 const validateSpam = (data) => {
+    console.log('send-telegram check: spam honeypot');
     const honeypot = toCleanString(data.website || data.company || data.url);
 
     if (honeypot) {
+        console.log('send-telegram rejection: honeypot triggered');
         return false;
     }
 
+    console.log('send-telegram check: spam minimum fill time');
     const startedAt = Number(data.formStartedAt);
 
     if (Number.isFinite(startedAt) && startedAt > 0 && Date.now() - startedAt < MIN_FORM_FILL_TIME_MS) {
+        console.log('send-telegram rejection: too fast submission', {
+            elapsedMs: Date.now() - startedAt,
+            minMs: MIN_FORM_FILL_TIME_MS
+        });
         return false;
     }
 
@@ -139,6 +207,7 @@ const cleanupRateLimit = (now) => {
 };
 
 const checkRateLimit = (key) => {
+    console.log('send-telegram check: rate limit');
     const now = Date.now();
     cleanupRateLimit(now);
 
@@ -156,12 +225,20 @@ const checkRateLimit = (key) => {
     if (now - current.lastSubmittedAt < REPEAT_SUBMIT_WINDOW_MS) {
         current.lastSubmittedAt = now;
         current.count += 1;
+        console.log('send-telegram rejection: rate limit triggered', {
+            reason: 'repeat_submit_window',
+            count: current.count
+        });
         return false;
     }
 
     if (now - current.windowStartedAt <= RATE_LIMIT_WINDOW_MS && current.count >= RATE_LIMIT_MAX_REQUESTS) {
         current.lastSubmittedAt = now;
         current.count += 1;
+        console.log('send-telegram rejection: rate limit triggered', {
+            reason: 'window_max_requests',
+            count: current.count
+        });
         return false;
     }
 
@@ -176,37 +253,52 @@ const checkRateLimit = (key) => {
 };
 
 const validateFields = (data) => {
+    console.log('send-telegram check: field validation');
     const name = toCleanString(data.name);
     const phone = toCleanString(data.phone);
     const age = toCleanString(data.age);
     const format = toCleanString(data.format);
     const message = toCleanString(data.message);
 
+    console.log('send-telegram check: max field length');
     if ([name, phone, age, format].some((field) => field.length > MAX_FIELD_LENGTH)) {
+        console.log('send-telegram rejection: validation_failed: field too long');
         return null;
     }
 
+    console.log('send-telegram check: required fields and consent');
     if (!name || !phone || !age || !format || !isTruthyConsent(data.consent)) {
+        console.log('send-telegram rejection: validation_failed: missing required field or consent');
         return null;
     }
 
+    console.log('send-telegram check: name and contact format');
     if (!isValidName(name) || !isValidContact(phone)) {
+        console.log('send-telegram rejection: validation_failed: invalid name or contact');
         return null;
     }
 
+    console.log('send-telegram check: age');
     if (age.length < 1 || age.length > 40 || hasUrl(age) || isGarbageValue(age)) {
+        console.log('send-telegram rejection: validation_failed: invalid age');
         return null;
     }
 
+    console.log('send-telegram check: allowed format');
     if (!allowedFormats.has(format)) {
+        console.log('send-telegram rejection: validation_failed: invalid format');
         return null;
     }
 
+    console.log('send-telegram check: message length and repeated chars');
     if (message.length > MAX_MESSAGE_LENGTH || hasRepeatedChars(message)) {
+        console.log('send-telegram rejection: validation_failed: invalid message length or repeated chars');
         return null;
     }
 
+    console.log('send-telegram check: message links');
     if (message && /https?:\/\/|www\./i.test(message)) {
+        console.log('send-telegram rejection: validation_failed: link spam in message');
         return null;
     }
 
@@ -227,17 +319,32 @@ const getClientKey = (event, phone) => {
 };
 
 exports.handler = async function (event) {
+    console.log('send-telegram request start', {
+        method: event.httpMethod,
+        contentType: getHeader(event.headers, 'content-type'),
+        rawBody: redactRawBody(event)
+    });
+
+    console.log('send-telegram check: request method');
     if (event.httpMethod !== 'POST') {
+        console.log('send-telegram rejection: method_not_allowed', { method: event.httpMethod });
         return jsonResponse(405, { ok: false, error: 'method_not_allowed' });
     }
 
     let data;
 
+    console.log('send-telegram check: parse body');
     try {
         data = parseBody(event);
     } catch (error) {
+        console.error('send-telegram error: body parse failed', {
+            message: error.message,
+            statusCode: error.statusCode || 400
+        });
         return jsonResponse(error.statusCode || 400, { ok: false, error: 'bad_request' });
     }
+
+    logParsedData(data);
 
     if (!validateSpam(data)) {
         return jsonResponse(400, { ok: false, error: 'bad_request' });
@@ -256,9 +363,20 @@ exports.handler = async function (event) {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
+    console.log('send-telegram check: env variables', {
+        hasTelegramBotToken: Boolean(botToken),
+        hasTelegramChatId: Boolean(chatId)
+    });
+
     if (!botToken || !chatId) {
+        console.error('send-telegram error: missing env variables', {
+            hasTelegramBotToken: Boolean(botToken),
+            hasTelegramChatId: Boolean(chatId)
+        });
         return jsonResponse(500, { ok: false, error: 'server_configuration_error' });
     }
+
+    console.log('send-telegram validation passed: preparing Telegram request');
 
     const text = `
 🧾 Новая заявка с сайта
@@ -273,6 +391,7 @@ ${validated.message || 'Не указано'}
     `.trim();
 
     try {
+        console.log('send-telegram sending request to Telegram');
         const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             method: 'POST',
             headers: {
@@ -284,12 +403,21 @@ ${validated.message || 'Не указано'}
             })
         });
 
+        console.log('send-telegram Telegram response', { status: telegramResponse.status });
+
         if (!telegramResponse.ok) {
+            console.error('send-telegram error: Telegram API returned non-ok status', {
+                status: telegramResponse.status
+            });
             return jsonResponse(502, { ok: false, error: 'telegram_api_error' });
         }
 
+        console.log('send-telegram success');
         return jsonResponse(200, { ok: true });
     } catch (error) {
+        console.error('send-telegram error: Telegram request failed', {
+            message: error.message
+        });
         return jsonResponse(502, { ok: false, error: 'telegram_api_error' });
     }
 };
