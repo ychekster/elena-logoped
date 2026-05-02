@@ -492,7 +492,21 @@ const TABLET_BREAKPOINT = 1024;
             .map(getFormField)
             .filter(Boolean);
 
-        return fields.every(validateField);
+        let firstInvalidField = null;
+
+        fields.forEach((field) => {
+            if (!validateField(field) && !firstInvalidField) {
+                firstInvalidField = field;
+            }
+        });
+
+        if (firstInvalidField) {
+            firstInvalidField.focus({ preventScroll: true });
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+
+        return true;
     };
 
     const showServerFieldError = (data) => {
