@@ -23,7 +23,8 @@
         <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png">
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
-        <link rel="preload" as="image" href="images/hero-pc.webp" imagesrcset="images/hero-mobile.webp 658w, images/hero-pc.webp 675w" imagesizes="(max-width: 768px) 100vw, (max-width: 1024px) 360px, 420px" fetchpriority="high">
+        <link rel="preload" as="image" href="images/hero-mobile.webp" media="(max-width: 768px)" fetchpriority="high">
+        <link rel="preload" as="image" href="images/hero-pc.webp" media="(min-width: 769px)" fetchpriority="high">
 
         <!-- Шрифты -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -584,7 +585,7 @@
                                             <input class="contact__form-input" type="text" id="field-name" name="name" placeholder="Мария" autocomplete="name" required>
                                         </div>
                                         <div class="contact__form-group">
-                                            <label class="contact__form-label" for="field-phone">Телефон или мессенджер <span class="contact__form-required">*</span></label>
+                                            <label class="contact__form-label" for="field-phone">Телефон или telegram <span class="contact__form-required">*</span></label>
                                             <input class="contact__form-input" type="text" id="field-phone" name="phone" placeholder="+7 ..." autocomplete="tel" required>
                                         </div>
                                     </div>
