@@ -600,8 +600,7 @@ const TABLET_BREAKPOINT = 1024;
             if (window.ym) {
                 ym(108996800, 'reachGoal', 'form_submit');
             }
-            setModalContent('success');
-            openModal();
+            window.location.href = '/thanks';
         } catch (error) {
             setModalContent('error');
             openModal();

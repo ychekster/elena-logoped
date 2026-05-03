@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Заявка отправлена — Елена Чекстер</title>
+        <meta name="description" content="Спасибо за заявку.">
+        <meta name="robots" content="noindex, follow">
+
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+        <div class="modal" id="thanks-modal" role="dialog" aria-modal="true" aria-labelledby="thanks-title" aria-describedby="thanks-text">
+            <div class="modal__overlay" id="thanks-overlay"></div>
+            <div class="modal__box">
+                <div class="modal__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <h3 class="modal__title" id="thanks-title">Заявка отправлена</h3>
+                <p class="modal__text" id="thanks-text">Отвечу в течение дня. Спасибо, что обратились.</p>
+                <button class="btn btn-primary modal__btn" id="thanks-close" type="button">Ок</button>
+            </div>
+        </div>
+
+        <script>
+            (function initThanksPage() {
+                const closeButton = document.getElementById('thanks-close');
+                const overlay = document.getElementById('thanks-overlay');
+
+                const returnHome = () => {
+                    if (document.referrer) {
+                        history.back();
+                        return;
+                    }
+
+                    window.location.href = '/';
+                };
+
+                closeButton.addEventListener('click', returnHome);
+                overlay.addEventListener('click', returnHome);
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        returnHome();
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>
