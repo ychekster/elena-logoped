@@ -420,20 +420,60 @@ const TABLET_BREAKPOINT = 1024;
         restorePlaceholder(field);
     };
 
-    const isFieldInViewport = (field) => {
-        const rect = field.getBoundingClientRect();
+    const getViewportHeight = () => window.visualViewport?.height || window.innerHeight;
+
+    const getFieldSafeArea = () => {
         const header = document.getElementById('header');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-        const topSafeArea = Math.max(0, headerBottom) + 12;
+        const top = Math.max(0, headerBottom) + 12;
+        const bottom = getViewportHeight() - 20;
 
-        return rect.top >= topSafeArea && rect.bottom <= window.innerHeight;
+        return { top, bottom };
+    };
+
+    const isFieldInViewport = (field) => {
+        const rect = field.getBoundingClientRect();
+        const safeArea = getFieldSafeArea();
+
+        return rect.top >= safeArea.top && rect.bottom <= safeArea.bottom;
+    };
+
+    const scrollFieldIntoSafeArea = (field, behavior = 'smooth') => {
+        const rect = field.getBoundingClientRect();
+        const safeArea = getFieldSafeArea();
+        const safeHeight = Math.max(0, safeArea.bottom - safeArea.top);
+        const targetTop = safeArea.top + Math.max(0, (safeHeight - rect.height) / 2);
+        const nextScrollY = window.scrollY + rect.top - targetTop;
+
+        window.scrollTo({
+            top: Math.max(0, nextScrollY),
+            behavior,
+        });
     };
 
     const focusFieldError = (field) => {
         field.focus({ preventScroll: true });
 
         if (!isFieldInViewport(field)) {
-            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            scrollFieldIntoSafeArea(field);
+        }
+
+        if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches) {
+            window.setTimeout(() => {
+                if (!isFieldInViewport(field)) {
+                    scrollFieldIntoSafeArea(field);
+                }
+            }, 300);
+
+            window.visualViewport?.addEventListener(
+                'resize',
+                () => {
+                    if (!isFieldInViewport(field)) {
+                        scrollFieldIntoSafeArea(field, 'auto');
+                    }
+                },
+                { once: true }
+            );
         }
     };
 
@@ -599,6 +639,13 @@ const TABLET_BREAKPOINT = 1024;
 
             if (window.ym) {
                 ym(108996800, 'reachGoal', 'form_submit');
+            }
+            if (typeof gtag === 'function') {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-18136187849/R3igCOnG3aYcEMmHgchD',
+                    'value': 1.0,
+                    'currency': 'USD'
+                });
             }
             window.location.href = '/thanks';
         } catch (error) {
