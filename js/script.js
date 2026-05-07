@@ -647,7 +647,7 @@ const TABLET_BREAKPOINT = 1024;
                     'currency': 'USD'
                 });
             }
-            window.location.href = '/thanks';
+            window.location.href = '/thanks.html';
         } catch (error) {
             setModalContent('error');
             openModal();
